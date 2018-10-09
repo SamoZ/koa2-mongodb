@@ -9,11 +9,22 @@ router.use(async (ctx, next) => {
     // 模板引擎配置全局的变量
     ctx.state.__HOST__ = 'http://' + ctx.request.header.host;
 
-    await next();
+    // 权限判断
+    if (ctx.session.userinfo) {
+        await next();
+    } else {
+        if (ctx.url === '/admin/login' || ctx.url === '/admin/login/doLogin') {
+            await next();
+        } else {
+            ctx.redirect('/admin/login');
+        }
+    }
+
 })
 
 router.get('/', async (ctx) => {
-    ctx.body = '后台管理';
+    // ctx.body = '后台管理';
+    await ctx.render('admin/index');
 })
 
 router.use('/login', login);
